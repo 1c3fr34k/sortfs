@@ -9,9 +9,8 @@ import (
 
 func main() {
 	start := time.Now()
-	// folders, files := sortfs.GetFolderAndFilePaths("C:\\Users\\manue\\Downloads")
-	// rootpath := sortfs.New("C:\\Users\\manue\\Desktop\\DEV\\Go\\sortFS\\Test\\Test")
-	rootpath := sortfs.New("C:\\Users\\manue\\Documents\\repos\\sortFS\\Test\\Test")
+
+	rootpath := sortfs.New("C:\\Users\\manue\\Downloads\\Test\\Test")
 	rootpath.Sort()
 
 	elapsed := time.Since(start)
