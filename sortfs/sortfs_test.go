@@ -12,14 +12,14 @@ func TestGetFolderAndFilePathsLenFiles(t *testing.T) {
 }
 
 func TestGetFolderAndFilePathsLenFolders(t *testing.T) {
-	_, folders := getFolderAndFilePaths("C:\\Users\\manue\\Desktop\\DEV\\Go\\sortFS\\Test\\Unittest")
-	if len(folders) != 1 {
+	_, folders := getFolderAndFilePaths("C:\\Users\\manue\\Desktop\\DEV\\Go\\sortFS\\testfolder")
+	if len(folders) != 2 {
 		t.Errorf("Expected 1 folder, got %d", len(folders))
 	}
 }
 
 func BenchmarkGetFolderAndFiles(b *testing.B) {
 	for i := 0; i < b.N; i++ {
-		getFolderAndFilePaths("C:\\Users\\manue\\Desktop\\DEV\\Go\\sortFS\\Test\\Unittest")
+		getFolderAndFilePaths("C:\\Users\\manue\\Desktop\\DEV\\Go\\sortFS\\testfolder")
 	}
 }
