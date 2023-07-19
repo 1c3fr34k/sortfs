@@ -96,11 +96,18 @@ func createFoldersForExtensions(root string, extensions []string) (extensionPath
 	return extensionPaths
 }
 
-// generateNewFolderName generates a new folder name by joining the extension path and the file name.
-// It takes in two string parameters: fileName and extensionPath.
-// It returns a string value newFolderName.
+// generateNewFolderName generates a new folder name for a file based on its name and the extension path.
+// It takes in two string parameters: fileName which is the name of the file, and extensionPath which is the path to the extension folder.
+// It iterates through the extension folder and checks if a folder with the same name as the generated folder name already exists.
+// If a folder with the same name exists, it generates a new folder name with an incremented number appended to the end.
+// It returns a string value newFolderName which is the generated folder name.
 func generateNewFolderName(fileName, extensionPath string) (newFolderName string) {
-	newFolderName = filepath.Join(extensionPath, fileName)
+	for i := 1; ; i++ {
+		newFolderName = filepath.Join(extensionPath, fmt.Sprintf("%d__%s", i, fileName))
+		if !checkForExistingFile(newFolderName) {
+			break
+		}
+	}
 	return newFolderName
 }
 
@@ -119,19 +126,17 @@ func checkForExistingFile(newPath string) (doesExist bool) {
 // moveFilesToExtensionFolder moves files to their respective extension folders.
 // It takes in two parameters: files which is a map of file names and their paths, and extensionPaths which is a slice of extension folder paths.
 // It iterates through each file in the files map and checks if the file extension matches any of the extensions in the extensionPaths slice.
-// If a match is found, it generates a new folder name using the generateNewFolderName function and checks if the file already exists in the new path using the checkForExistingFile function.
-// If the file does not exist, it renames the file to the new path using the os.Rename function.
+// If a match is found, it generates a new folder name using the generateNewFolderName function and moves the file to the new folder.
+// It returns nothing.
 func moveFilesToExtensionFolder(files map[string]string, extensionPaths []string) {
 	for kFile, vFile := range files {
 		for _, extension := range extensionPaths {
 			if filepath.Ext(extension) == filepath.Ext(vFile) {
 				oldFile := vFile
 				newFile := generateNewFolderName(kFile, extension)
-				if !checkForExistingFile(newFile) {
-					err := os.Rename(oldFile, newFile)
-					if err != nil {
-						fmt.Println(err)
-					}
+				err := os.Rename(oldFile, newFile)
+				if err != nil {
+					fmt.Println(err)
 				}
 			}
 		}
