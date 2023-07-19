@@ -8,10 +8,8 @@ import (
 
 type sortFs struct {
 	rootPath       string
-	fileNames      []string
-	filePaths      []string
-	folderNames    []string
-	folderPaths    []string
+	files          map[string]string
+	folders        map[string]string
 	extensionNames []string
 	extensionPaths []string
 }
@@ -21,17 +19,16 @@ func New(root string) *sortFs {
 }
 
 func (s *sortFs) Sort() {
-	s.filePaths, s.fileNames, _ = getFolderAndFilePaths(s.rootPath)
-	s.extensionNames = getDestinctFileExtensions(s.filePaths)
-
-	fmt.Println(getDestinctFileExtensions(s.filePaths))
-
+	s.files, s.folders = getFolderAndFilePaths(s.rootPath)
+	s.extensionNames = getDestinctFileExtensions(s.files)
 	s.extensionPaths = createFoldersForExtensions(s.rootPath, s.extensionNames)
-	// moveFilesToExtensionFolder(files, extensionPaths)
+	moveFilesToExtensionFolder(s.files, s.extensionPaths)
 
 }
 
-func getFolderAndFilePaths(root string) (filePaths, fileNames, folderPaths []string) {
+func getFolderAndFilePaths(root string) (files, folders map[string]string) {
+	files = make(map[string]string)
+	folders = make(map[string]string)
 	err := filepath.WalkDir(root, func(path string, entry os.DirEntry, err error) error {
 		if err != nil {
 			return err
@@ -42,10 +39,9 @@ func getFolderAndFilePaths(root string) (filePaths, fileNames, folderPaths []str
 				return filepath.SkipDir
 			} else {
 				if entry.IsDir() {
-					folderPaths = append(folderPaths, filepath.Join(path))
+					folders[entry.Name()] = path
 				} else {
-					filePaths = append(filePaths, path)
-					fileNames = append(fileNames, entry.Name())
+					files[entry.Name()] = path
 				}
 			}
 		}
@@ -54,13 +50,13 @@ func getFolderAndFilePaths(root string) (filePaths, fileNames, folderPaths []str
 
 	if err != nil {
 		fmt.Println(err)
-		return nil, nil, nil
+		return nil, nil
 	}
 
-	return filePaths, fileNames, folderPaths
+	return files, folders
 }
 
-func getDestinctFileExtensions(files []string) (extensions []string) {
+func getDestinctFileExtensions(files map[string]string) (extensions []string) {
 	for _, value := range files {
 		ext_exists := false
 		ext := filepath.Ext(value)
@@ -96,22 +92,15 @@ func createFoldersForExtensions(root string, extensions []string) (extensionPath
 }
 
 func generateNewFolderName(fileName, extensionPath string) (newFolderName string) {
-	for _, file := range fileName {
-		for _, ext := range extensionPath {
-			if filepath.Ext(string(file)) == filepath.Ext(string(ext)) {
-				newFolderName = filepath.Join(string(ext), string(file))
-			}
-		}
-	}
+	newFolderName = filepath.Join(extensionPath, fileName)
 	return newFolderName
 }
 
-func moveFilesToExtensionFolder(filePaths []string, extensionPaths []string) {
-
-	for _, file := range filePaths {
+func moveFilesToExtensionFolder(files map[string]string, extensionPaths []string) {
+	for kFile, vFile := range files {
 		for _, extension := range extensionPaths {
-			if extension == filepath.Ext(file) {
-				err := os.Rename(file, extension)
+			if filepath.Ext(extension) == filepath.Ext(vFile) {
+				err := os.Rename(vFile, generateNewFolderName(kFile, extension))
 				if err != nil {
 					fmt.Println(err)
 				}
