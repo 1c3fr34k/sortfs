@@ -1,6 +1,7 @@
 package sortfs
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -15,8 +16,13 @@ type sortFs struct {
 }
 
 // Init a new sortFs struct
-func New(root string) *sortFs {
-	return &sortFs{rootPath: root}
+func New(root string) (*sortFs, error) {
+	if !pathDoesExist(root) {
+		return nil, errors.New("path does not exist")
+
+	}
+	return &sortFs{rootPath: root}, nil
+
 }
 
 // Entry point
@@ -96,26 +102,30 @@ func createFoldersForExtensions(root string, extensions []string) (extensionPath
 	return extensionPaths
 }
 
-// generateNewFolderName generates a new folder name for a file based on its name and the extension path.
-// It takes in two string parameters: fileName which is the name of the file, and extensionPath which is the path to the extension folder.
-// It iterates through the extension folder and checks if a folder with the same name as the generated folder name already exists.
-// If a folder with the same name exists, it generates a new folder name with an incremented number appended to the end.
-// It returns a string value newFolderName which is the generated folder name.
-func generateNewFolderName(fileName, extensionPath string) (newFolderName string) {
+// generateNewPathName generates a new folder name for a file based on the extension path.
+// It takes in two parameters: fileName which is the name of the file, and extensionPath which is the path of the extension folder.
+// It iterates through the extension folder and generates a new folder name using the format "i__fileName" where i is an integer.
+// It returns the new folder name as a string.
+func generateNewPathName(fileName, extensionPath string) (newFolderName string) {
+	newFolderName = filepath.Join(extensionPath, fileName)
+
+	if !pathDoesExist(newFolderName) {
+		return newFolderName
+	}
+
 	for i := 1; ; i++ {
 		newFolderName = filepath.Join(extensionPath, fmt.Sprintf("%d__%s", i, fileName))
-		if !checkForExistingFile(newFolderName) {
-			break
+		if !pathDoesExist(newFolderName) {
+			return newFolderName
 		}
 	}
-	return newFolderName
 }
 
-// checkForExistingFile checks if a file already exists in the given path.
-// It takes in a string parameter newPath which is the path to check.
-// It returns a boolean value doesExist which is true if the file exists and false otherwise.
-func checkForExistingFile(newPath string) (doesExist bool) {
-	_, err := os.Stat(newPath)
+// pathDoesExist checks if a path already exists.
+// It takes in a string parameter path which is the path to check.
+// It returns a boolean value doesExist which is true if the path exists and false if it does not.
+func pathDoesExist(path string) bool {
+	_, err := os.Stat(path)
 	if err == nil {
 		return true
 	} else {
@@ -133,7 +143,7 @@ func moveFilesToExtensionFolder(files map[string]string, extensionPaths []string
 		for _, extension := range extensionPaths {
 			if filepath.Ext(extension) == filepath.Ext(vFile) {
 				oldFile := vFile
-				newFile := generateNewFolderName(kFile, extension)
+				newFile := generateNewPathName(kFile, extension)
 				err := os.Rename(oldFile, newFile)
 				if err != nil {
 					fmt.Println(err)
