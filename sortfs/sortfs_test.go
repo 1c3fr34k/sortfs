@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+// TODO: Need more tests
+
 func TestGetFolderAndFilePathsLenFiles(t *testing.T) {
 	files, _ := getFolderAndFilePaths("C:\\Users\\manue\\Desktop\\DEV\\Go\\sortFS\\Test\\Unittest")
 	if len(files) != 1 {
