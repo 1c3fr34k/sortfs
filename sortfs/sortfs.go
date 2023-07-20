@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 )
 
 type sortFs struct {
@@ -32,6 +33,24 @@ func (s *sortFs) Sort() {
 	s.extensionPaths = createFoldersForExtensions(s.rootPath, s.extensionNames)
 	moveFilesToExtensionFolder(s.files, s.extensionPaths)
 
+}
+
+// CLI
+func CLI() {
+	var pathinput string
+	fmt.Println("Enter the Path you want to sort:")
+	fmt.Scanln(&pathinput)
+
+	rootpath, err := New(pathinput)
+
+	if err != nil {
+		panic(err)
+	}
+
+	start := time.Now()
+	rootpath.Sort()
+	elapsed := time.Since(start)
+	fmt.Printf("\nElapsed time: %s", elapsed)
 }
 
 // Returns folders and files non-recursively as a map
