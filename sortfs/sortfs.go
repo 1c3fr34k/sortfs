@@ -38,19 +38,30 @@ func (s *sortFs) Sort() {
 // CLI
 func CLI() {
 	var pathinput string
-	fmt.Println("Enter the Path you want to sort:")
+	fmt.Println("Enter the path you want to sort:\n")
 	fmt.Scanln(&pathinput)
 
 	rootpath, err := New(pathinput)
 
 	if err != nil {
-		panic(err)
+		fmt.Println("\n", err)
 	}
 
-	start := time.Now()
-	rootpath.Sort()
-	elapsed := time.Since(start)
-	fmt.Printf("\nElapsed time: %s", elapsed)
+	if rootpath == nil {
+		fmt.Println("\nFailed to create rootpath")
+		return
+	}
+
+	if rootpath == nil && len(rootpath.files) == 0 {
+		fmt.Println("\nNo files found in the root path")
+	} else {
+		start := time.Now()
+		rootpath.Sort()
+		elapsed := time.Since(start)
+		fmt.Printf("\nSorted in %s", elapsed)
+		fmt.Scanln()
+	}
+
 }
 
 // Returns folders and files non-recursively as a map
