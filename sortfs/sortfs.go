@@ -60,6 +60,7 @@ func CLI() {
 		elapsed := time.Since(start)
 		fmt.Printf("\nSorted in %s", elapsed)
 		fmt.Scanln()
+		fmt.Println("\nPRESS ANY KEY TO EXIT")
 	}
 
 }
