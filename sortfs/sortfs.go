@@ -41,26 +41,36 @@ func CLI() {
 	fmt.Println("Enter the path you want to sort:\n")
 	fmt.Scanln(&pathinput)
 
-	rootpath, err := New(pathinput)
-
-	if err != nil {
-		fmt.Println("\n", err)
-	}
-
-	if rootpath == nil {
-		fmt.Println("\nFailed to create rootpath")
-		return
-	}
-
-	if rootpath == nil && len(rootpath.files) == 0 {
-		fmt.Println("\nNo files found in the root path")
-	} else {
-		start := time.Now()
-		rootpath.Sort()
-		elapsed := time.Since(start)
-		fmt.Printf("\nSorted in %s", elapsed)
+	if pathinput == "" {
+		fmt.Println("\nNo path entered")
 		fmt.Println("\nPRESS ANY KEY TO EXIT")
 		fmt.Scanln()
+	} else if !pathDoesExist(pathinput) {
+		fmt.Println("\nPath does not exist")
+		fmt.Println("\nPRESS ANY KEY TO EXIT")
+		fmt.Scanln()
+	} else {
+		rootpath, err := New(pathinput)
+
+		if err != nil {
+			fmt.Println("\n", err)
+		}
+
+		if rootpath == nil {
+			fmt.Println("\nFailed to create rootpath")
+			return
+		}
+
+		if rootpath == nil && len(rootpath.files) == 0 {
+			fmt.Println("\nNo files found in the root path")
+		} else {
+			start := time.Now()
+			rootpath.Sort()
+			elapsed := time.Since(start)
+			fmt.Printf("\nSorted in %s\n", elapsed)
+			fmt.Println("\nPRESS ANY KEY TO EXIT")
+			fmt.Scanln()
+		}
 	}
 
 }
